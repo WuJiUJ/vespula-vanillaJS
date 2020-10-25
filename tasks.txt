@@ -1,0 +1,9 @@
+Task:
+
+1. A board id
+ - The chart would then start with this board at the top of the chart, and only show from this board downwards
+2. An integer ‘levels’
+ - If this integer is present, then it indicates the maximum number of ‘levels’ to show on the chart 
+3. A flag (boolean) showMainSupply
+ - If this boolean is true, then include the ‘Main Supply’ as a zeroth level board, so that all boards in the job appear in the same image file as they cascade down from the incoming supply
+4. Colours

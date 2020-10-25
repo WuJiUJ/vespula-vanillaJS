@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "npm run build && npm run server",
-    "server": "http-server public -p 3001",
+    "server": "http-server public -p 3000",
     "build": "browserify src -t babelify -o public/js/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,6 +12,7 @@
   "dependencies": {
     "@syncfusion/ej2-charts": "^18.2.56",
     "@syncfusion/ej2-react-diagrams": "^18.2.48",
+    "axios": "^0.20.0",
     "babel-preset-es2015": "^6.5.0",
     "babelify": "^7.2.0",
     "bootstrap": "^4.5.2",

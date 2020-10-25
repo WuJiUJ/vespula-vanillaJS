@@ -1,38 +1,57 @@
+import { isVariableDeclaration } from "typescript";
 import job from "./response1.json";
 
 let firstLevelBoards = job.filter((item) => item.boardSupplyType === "2");
 
-function groupBoardByMSB(allBoards, firstLevelBoard) {
+function groupBoardByMSB(allBoards, firstLevelBoard, levelLimit) {
   let queue = [];
   let arr = [];
   queue.push(firstLevelBoard);
   while (queue.length !== 0) {
     let board = queue.shift();
-    arr.push(board);
 
-    board.circuits.forEach((circuit) => {
-      //find the child boards of this circuit
-      let childBoards = allBoards.filter(
-        (x) => x.boardCircuitSupplySource === circuit.circuitID
-      );
-      childBoards.forEach((item) => {
-        if (item.statusCode === "A") {
-          queue.push(item);
-        }
+    if (board.level <= levelLimit) {
+      arr.push(board);
+
+      board.circuits.forEach((circuit) => {
+        //find the child boards of this circuit
+        let childBoards = allBoards.filter(
+          (x) => x.boardCircuitSupplySource === circuit.circuitID
+        );
+        childBoards.forEach((item) => {
+          if (item.statusCode === "A") {
+            queue.push(item);
+          }
+        });
       });
-    });
+    }
   }
   return arr;
 }
 
-let containerArray = [];
-firstLevelBoards.map((mainSupplyBoard) => {
-  containerArray.push(groupBoardByMSB([...job], mainSupplyBoard));
-});
+function assignLevel(allBoards, board, parentLevel) {
+  //Assign level
+  board.level = parentLevel + 1;
+  //Loop through board's circuits
+  board.circuits.forEach((circuit) => {
+    //find the child board of this circuit
+    let childBoards = allBoards.filter(
+      (x) => x.boardCircuitSupplySource === circuit.circuitID
+    );
+
+    //call function again if child board exist
+    if (childBoards.length > 0) {
+      childBoards.forEach((childBoard) => {
+        assignLevel(allBoards, childBoard, board.level);
+      });
+    }
+  });
+}
 
 function extractCircuitsFromBoards(boardsWithCircuits) {
   let circuits = [];
   let NoOfMSB = 0;
+  console.log();
   boardsWithCircuits.map((board) => {
     board.Id = board.boardID;
     board.Role = board.boardName;
@@ -101,14 +120,7 @@ function extractCircuitsFromBoards(boardsWithCircuits) {
   };
 }
 
-let GroupsOfNodes = [];
-
-containerArray.map((group) => {
-  let { circuits } = extractCircuitsFromBoards(group);
-  GroupsOfNodes.push([...group, ...circuits]);
-});
-
-function createDigram(id, data) {
+function createDigram(id, data, boardColor, circuitColor) {
   var button = document.createElement("button");
   button.setAttribute("type", "button");
   button.className = "btn btn-secondary";
@@ -154,9 +166,9 @@ function createDigram(id, data) {
 
       getNodeDefaults: (obj, diagram) => {
         if (obj.data["Type"] === "Board") {
-          obj.style.fill = "#FAC72E";
+          obj.style.fill = boardColor;
         } else {
-          obj.style.fill = "#aaa";
+          obj.style.fill = circuitColor;
         }
         if (obj.data["hasSubTree"]) {
           obj.width = 75;
@@ -205,6 +217,44 @@ function createDigram(id, data) {
   };
 }
 
-GroupsOfNodes.map((data, index) => {
-  createDigram(index + 1, data);
-});
+function init(input) {
+  let containerArray = [];
+  firstLevelBoards.map((mainSupplyBoard) => {
+    assignLevel([...job], mainSupplyBoard, 0);
+  });
+
+  if (!input.isShowMainSupply) {
+    let secondLevelBoards = job.filter((item) => item.level === 2);
+    secondLevelBoards.map((firstLevelBoard) => {
+      containerArray.push(
+        groupBoardByMSB([...job], firstLevelBoard, input.levelLimit)
+      );
+    });
+  } else {
+    firstLevelBoards.map((mainSupplyBoard) => {
+      containerArray.push(
+        groupBoardByMSB([...job], mainSupplyBoard, input.levelLimit)
+      );
+    });
+  }
+
+  let GroupsOfNodes = [];
+
+  containerArray.map((group) => {
+    let { circuits } = extractCircuitsFromBoards(group);
+    GroupsOfNodes.push([...group, ...circuits]);
+  });
+
+  GroupsOfNodes.map((data, index) => {
+    createDigram(index + 1, data, input.boardColor, input.circuitColor);
+  });
+}
+
+let input = {
+  boardColor: "#FAC72E",
+  circuitColor: "#aaa",
+  levelLimit: 3,
+  isShowMainSupply: false,
+};
+
+init(input);
