@@ -51,7 +51,6 @@ function assignLevel(allBoards, board, parentLevel) {
 function extractCircuitsFromBoards(boardsWithCircuits) {
   let circuits = [];
   let NoOfMSB = 0;
-  console.log();
   boardsWithCircuits.map((board) => {
     board.Id = board.boardID;
     board.Role = board.boardName;
@@ -226,6 +225,7 @@ function init(input) {
   if (!input.isShowMainSupply) {
     let secondLevelBoards = job.filter((item) => item.level === 2);
     secondLevelBoards.map((firstLevelBoard) => {
+      firstLevelBoard.boardCircuitSupplySource = null;
       containerArray.push(
         groupBoardByMSB([...job], firstLevelBoard, input.levelLimit)
       );
@@ -254,7 +254,7 @@ let input = {
   boardColor: "#FAC72E",
   circuitColor: "#aaa",
   levelLimit: 3,
-  isShowMainSupply: false,
+  isShowMainSupply: true,
 };
 
 init(input);
