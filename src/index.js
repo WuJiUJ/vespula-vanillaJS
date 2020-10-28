@@ -1,4 +1,3 @@
-import { isVariableDeclaration } from "typescript";
 import job from "./response1.json";
 
 let firstLevelBoards = job.filter((item) => item.boardSupplyType === "2");
@@ -218,26 +217,36 @@ function createDigram(id, data, boardColor, circuitColor) {
 
 function init(input) {
   let containerArray = [];
-  firstLevelBoards.map((mainSupplyBoard) => {
-    assignLevel([...job], mainSupplyBoard, 0);
-  });
-
-  if (!input.isShowMainSupply) {
-    let secondLevelBoards = job.filter((item) => item.level === 2);
-    secondLevelBoards.map((firstLevelBoard) => {
-      firstLevelBoard.boardCircuitSupplySource = null;
-      containerArray.push(
-        groupBoardByMSB([...job], firstLevelBoard, input.levelLimit)
-      );
-    });
-  } else {
+  if (!input.boardFocus) {
     firstLevelBoards.map((mainSupplyBoard) => {
-      containerArray.push(
-        groupBoardByMSB([...job], mainSupplyBoard, input.levelLimit)
-      );
+      assignLevel([...job], mainSupplyBoard, 0);
     });
-  }
 
+    if (!input.isShowMainSupply) {
+      let secondLevelBoards = job.filter((item) => item.level === 2);
+      secondLevelBoards.map((firstLevelBoard) => {
+        firstLevelBoard.boardCircuitSupplySource = null;
+        containerArray.push(
+          groupBoardByMSB([...job], firstLevelBoard, input.levelLimit)
+        );
+      });
+    } else {
+      firstLevelBoards.map((mainSupplyBoard) => {
+        containerArray.push(
+          groupBoardByMSB([...job], mainSupplyBoard, input.levelLimit)
+        );
+      });
+    }
+  } else {
+    //only show the chosen board and its children
+    let focusBoard = job.find((item) => item.boardID === input.boardFocus);
+    focusBoard.boardCircuitSupplySource = null;
+    assignLevel([...job], focusBoard, 0);
+    containerArray.push(
+      groupBoardByMSB([...job], focusBoard, input.levelLimit)
+    );
+    console.log(containerArray);
+  }
   let GroupsOfNodes = [];
 
   containerArray.map((group) => {
@@ -251,9 +260,10 @@ function init(input) {
 }
 
 let input = {
+  boardFocus: "ab268c1d-978e-4198-99e4-e31c02140b19",
   boardColor: "#FAC72E",
   circuitColor: "#aaa",
-  levelLimit: 3,
+  levelLimit: 4,
   isShowMainSupply: true,
 };
 
