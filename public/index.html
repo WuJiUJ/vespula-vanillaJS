@@ -67,8 +67,28 @@
   </head>
 
   <body>
-    <div id="container">
-      <div id="root" style="margin: 50px"></div>
+    <div id="container" class="container-fluid" style="margin: 50px">
+      <div class="row">
+        <div id="root" class="col-10" ></div>
+        <div class="col-2">
+          <div class="row m-2 d-flex align-items-center">
+            <input type="text" id="boardID" style="border-width: 1;" placeholder="search via board id">
+          </div>
+          <div class="row m-2 d-flex form-group align-items-center text-center">
+            <input type="checkbox" class="btn-check mx-2" id="isHideMainSupply" autocomplete="off">
+            <label>hideMainSupply</label>
+          </div>
+          <div class="row m-2 d-flex align-items-center">
+            <input type="text" id="boardColor" style="border-width: 1;" placeholder="pick board color">
+          </div>
+          <div class="row m-2 d-flex align-items-center">
+            <input type="text" id="circuitColor" style="border-width: 1;" placeholder="pick circuit color">
+          </div>
+          <div class="row m-2 d-flex align-items-center">
+            <input type="text" id="limitLevel" style="border-width: 1;">
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
